@@ -3,9 +3,13 @@ import httpx
 import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 from openai import AsyncOpenAI
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from typing import Dict
+import logging
 
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 app.add_middleware(
@@ -32,7 +36,7 @@ async def get_text(url):
             
     
     return all_text[:3000]
-    
+        
 
 @app.get('/')
 async def root():
@@ -43,12 +47,16 @@ async def root():
 @app.get("/retell")
 async def get_retell(url: str = Query()) -> Dict[str, str]:
     text = await get_text(url)
+
+    if not text:
+         raise HTTPException(status_code=400,
+                             detail="No text found at the provided URL")
     response = await client.chat.completions.create(
         model="meta-llama/llama-3.1-8b-instruct",  
         messages=[
             {"role": "user", "content": f"{retell_prompt}:\n\n{text}"}
         ],
-        timeout=60
+        timeout=40
     )
     return {"response":response.choices[0].message.content}
 
