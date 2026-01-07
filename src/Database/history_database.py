@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from fastapi import Depends
 from typing import Annotated
 
-from RespModels import Base
+from Models.RespModels import Base
 
 
 engine = create_async_engine("sqlite+aiosqlite:///prompt_history.db")
