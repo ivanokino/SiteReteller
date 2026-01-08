@@ -5,6 +5,7 @@ from Database.history_database import SessionDep, setup_db
 from Logic_and_API.logic_funcs import get_text
 from config import retell_prompt, client
 from sqlalchemy.future import select
+from sqlalchemy import delete
 from pydantic import HttpUrl
 
 
@@ -60,4 +61,15 @@ async def get_history(session:SessionDep, request:Request):
     return {
         "response":hist_list
     } 
+
+@router.post("/history")
+async def del_history(session:SessionDep,request:Request):
+    ip_address = request.client.host
+    query = delete(ResponseModel).where(ResponseModel.user_IP==ip_address)
+
+    await session.execute(query)
+    
+    await session.commit()
+
+    return {"response":"history deleted"}
 
