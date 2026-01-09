@@ -38,12 +38,15 @@ async def get_retell(url:HttpUrl, session:SessionDep, request:Request) -> Dict[s
     )
     response = response.choices[0].message.content
     user_ip_address = request.client.host
+
     new_resp = ResponseModel()
     new_resp.user_IP = user_ip_address
     new_resp.response = response
     new_resp.URL = url
+    
     session.add(new_resp)
     await session.commit()
+    
     return {"response":response}
 
 
